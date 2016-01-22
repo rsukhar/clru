@@ -14,7 +14,7 @@ if ( ! function_exists( 'clc_register_shortcodes' ) ) {
 if ( ! function_exists( 'clc_assets' ) ) {
 	add_action( 'wp_enqueue_scripts', 'clc_assets', 12 );
 	function clc_assets() {
-		wp_register_style( 'cl-calculator', get_stylesheet_directory_uri() . '/cl-calculator/css/cl-calculator.css', array(), FALSE, 'all' );
+		wp_enqueue_style( 'cl-calculator', get_stylesheet_directory_uri() . '/cl-calculator/css/cl-calculator.css', array(), FALSE, 'all' );
 		wp_register_script( 'cl-calculator', get_stylesheet_directory_uri() . '/cl-calculator/js/cl-calculator.js', array( 'jquery' ), FALSE, TRUE );
 	}
 }

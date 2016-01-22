@@ -41,7 +41,7 @@ foreach ( $required_skills as $item ) {
 	$output .= '<div class="cl-calculator-list-item">';
 	$output .= '<span class="cl-calculator-list-item-title">' . $item['title'] . '</span>';
 	if ( isset( $item['help'] ) AND ! empty( $item['help'] ) ) {
-		$output .= '<span class="cl-calculator-list-item-help" title="' . esc_attr( $item['help'] ) . '"></span>';
+		$output .= '<span data-tooltip="' . esc_attr( $item['help'] ) . '" data-tooltip-position="top"><span class="cl-calculator-list-item-help"> </span></span>';
 	}
 	$output .= '</div>';
 }
@@ -58,7 +58,7 @@ foreach ( $skills as $index => $item ) {
 	$output .= '<input type="checkbox" name="advanced_skill_' . $index . '" value="1">';
 	$output .= '<span class="cl-calculator-list-item-title">' . $item['title'] . '</span>';
 	if ( isset( $item['help'] ) AND ! empty( $item['help'] ) ) {
-		$output .= '<span class="cl-calculator-list-item-help" title="' . esc_attr( $item['help'] ) . '"></span>';
+		$output .= '<span data-tooltip="' . esc_attr( $item['help'] ) . '" data-tooltip-position="top"><span class="cl-calculator-list-item-help"> </span></span>';
 	}
 	$output .= '<span class="cl-calculator-list-item-rate" data-rate="' . esc_attr( $item['rate'] ) . '">+ ' . $item['rate'] . ' руб. / час</span>';
 	$output .= '</label>';
