@@ -13,3 +13,41 @@ Domain Path: /languages
 Template: Zephyr
 */
 
+.g-form.for_login, .g-form.for_notification, .g-form.for_profile, .g-form.for_register, .g-form.for_resetpass, .g-form.for_ticket, .g-form.for_ticket_license {
+	background-color: #fff;
+	border-radius: 2px;
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.05), 0 3px 7px 0 rgba(0, 0, 0, 0.25);
+	margin: 0 auto 10px;
+	max-width: 600px;
+	padding: 45px 60px 35px;
+}
+
+.for_register .g-preloader {
+	display: none;
+}
+
+.for_register .g-form-row {
+	margin: 0 0 20px 0;
+	position: relative;
+}
+
+.for_register .g-form-row.check_wrong .g-form-row-state {
+	height: auto;
+	opacity: 1;
+}
+
+.for_register .g-form-row-state {
+	clear: both;
+	color: #f44336;
+	font-size: 13px;
+	height: 0;
+	line-height: 18px;
+	opacity: 0;
+	overflow: hidden;
+	transition: height 0.3s cubic-bezier(0.78, 0.13, 0.15, 0.86) 0s, opacity 0.3s ease 0s;
+}
+
+.for_register .g-form-field-label {
+	font-size: 0.875em;
+	color: #707070;
+}
