@@ -29,7 +29,7 @@ require get_stylesheet_directory() . '/cl-calculator/cl-calculator.php';
 add_action( 'init', 'new_user_redirect' );
 function new_user_redirect() {
 	global $validate;
-	if ( $_POST['register_validation_required'] != '' ) {
+	if ( $_POST['clru_register_validation_required'] != '' ) {
 		$register_error = '';
 
 		$secret_key = us_get_option( 'google_recaptcha_secret_key', $default_value = NULL );
@@ -47,12 +47,12 @@ function new_user_redirect() {
 
 		if ( $_POST['username'] != '' ) {
 			$validate['username_exists_state'] = '';
-			if ( username_exists( $_POST['username'] ) ) {
+			if ( username_exists( trim( $_POST['username'] ) ) ) {
 				$validate['username_exists_state'] .= 'Пользователь с таким логином уже существует. Выберите, пожалуйста, другой логин или <a href="' . esc_url( home_url( '/' ) ) . 'request_password_reset/">восстановите ваш пароль</a>, если забыли его. ';
 				$validate['username_state'] = 'check_wrong';
 				$register_error = 'error';
 			}
-			if ( filter_var( $_POST['username'], FILTER_VALIDATE_EMAIL ) ) {
+			if ( filter_var( trim( $_POST['username'] ), FILTER_VALIDATE_EMAIL ) ) {
 				$validate['username_exists_state'] .= 'Ваш логин так похож на адрес email. Рекомендуем выбрать иной логин.';
 				$validate['username_state'] = 'check_wrong';
 				$register_error = 'error';
@@ -84,12 +84,12 @@ function new_user_redirect() {
 
 		if ( $_POST['email'] != '' ) {
 			$validate['email_valid_state'] = '';
-			if ( ! filter_var( $_POST['email'], FILTER_VALIDATE_EMAIL ) ) {
+			if ( ! filter_var( trim( $_POST['email'] ), FILTER_VALIDATE_EMAIL ) ) {
 				$validate['email_valid_state'] .= 'Вы ввели неправильный email. ';
 				$validate['email_state'] = 'check_wrong';
 				$register_error = 'error';
 			}
-			if ( email_exists( $_POST['email'] ) ) {
+			if ( email_exists( trim( $_POST['email'] ) ) ) {
 				$validate['email_valid_state'] .= 'Пользователь с таким email уже существует. Введите, пожалуйста, другой email или <a href="' . esc_url( home_url( '/' ) ) . 'request_password_reset/">восстановите ваш пароль</a>, если забыли его. ';
 				$validate['email_state'] = 'check_wrong';
 				$register_error = 'error';
@@ -115,7 +115,7 @@ function new_user_redirect() {
 				$register_error = 'error';
 			}
 		} else if ( $_POST['password'] == '' AND $_POST['password2'] != '' ) {
-			$validate['password1_valid_state'] = 'Необходимо ввести сам пароль.';
+			$validate['password1_valid_state'] = 'Необходимо ввести пароль.';
 			$validate['password1_state'] = 'check_wrong';
 			$validate['register_error'] = 'error';
 		} else if ( $_POST['password'] != '' AND $_POST['password2'] == '' ) {
@@ -137,7 +137,7 @@ function new_user_redirect() {
 
 		if ( $register_error != 'error' ) {
 
-			$user_id = wp_create_user( $_POST['username'], $_POST['password'], $_POST['email'] );
+			$user_id = wp_create_user( trim( $_POST['username'] ), trim( $_POST['password'] ), trim( $_POST['email'] ) );
 			if ( ! is_wp_error( $user_id ) ) {
 				$user = get_user_by( 'id', $user_id );
 				$user->set_role( 'subscriber' );
@@ -147,7 +147,7 @@ function new_user_redirect() {
 				);
 				wp_update_user( $userdata );
 
-				$realname = explode( ' ', $_POST['realname'] );
+				$realname = explode( ' ', trim( $_POST['realname'] ) );
 				update_user_meta( $user_id, 'first_name', $realname[0] );
 				update_user_meta( $user_id, 'last_name', $realname[1] );
 			}
@@ -242,10 +242,62 @@ function clru_register_form( $atts ) {
 								</div>';
 
 	$output .= '<div class="g-form-row for_submit">
-									<input type="hidden" name="register_validation_required" value="TRUE">
+									<input type="hidden" name="clru_register_validation_required" value="TRUE">
 									<button class="g-btn color_primary type_raised">
 										<span class="g-preloader"></span>
 										<span class="g-btn-label">Отправить</span>
+									<span class="ripple-container"></span></button>
+									<div class="g-form-field-message"></div>
+								</div>
+
+							</div>
+						</form>';
+
+	return $output;
+}
+
+add_shortcode( 'cl-request-password-reset', 'clru_password_reset_form' );
+function clru_password_reset_form( $atts ) {
+
+	if ( $_POST['clru_request_password_reset'] != '' ) {
+		if ( ! email_exists( trim( $_POST['user_login'] ) ) ) {
+			$validate['email_valid_state'] = 'Пользователь с таким email не существует. Введите, пожалуйста, другой email или <a href="' . esc_url( home_url( '/register/' ) ) . 'request_password_reset/">зарегистрируйтесь</a>, если не регистрировались ранее. ';
+			$validate['email_state'] = 'check_wrong';
+		} else {
+			ob_start();
+			include_once( ABSPATH . '/wp-login.php' );
+			ob_end_clean();
+			$errors = retrieve_password();
+			if ( $errors !== TRUE ) {
+				$validate['email_valid_state'] = $errors;
+				$validate['email_state'] = 'check_wrong';
+			} else {
+				$validate['email_valid_state'] = 'Письмо для восстановления пароля отправлено на ваш email';
+				$validate['email_state'] = 'check_success';
+			}
+		}
+	}
+
+	$output = '<form action="' . get_the_permalink() . '" method="post" class="g-form for_resetpass">';
+	$output .= '<div class="g-form-h">';
+	$output .= '<h2 class="g-form-title">Восстановление пароля</h2>';
+
+	$output .= '<div class="g-form-row for_text">Введите email, который вы указали при регистрации.</div>';
+
+	$output .= '<div class="g-form-row for_email ' . $validate['email_state'] . '">
+									<div class="g-form-field">
+										<input type="text" value="" name="user_login" id="resetpass_email">
+										<label for="resetpass_email" class="g-form-field-label">Email</label>
+										<div class="g-form-field-bar"></div>
+									</div>
+									<div class="g-form-row-state">' . $validate['email_valid_state'] . '</div>
+								</div>';
+
+	$output .= '<div class="g-form-row for_submit">
+									<input type="hidden" name="clru_request_password_reset" value="TRUE">
+									<button class="g-btn color_primary type_raised">
+										<span class="g-preloader"></span>
+										<span class="g-btn-label">Восстановить пароль</span>
 									<span class="ripple-container"></span></button>
 									<div class="g-form-field-message"></div>
 								</div>

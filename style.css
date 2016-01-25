@@ -22,21 +22,32 @@ Template: Zephyr
 	padding: 45px 60px 35px;
 }
 
-.for_register .g-preloader {
+.for_register .g-preloader,
+.for_resetpass .g-preloader {
 	display: none;
 }
 
-.for_register .g-form-row {
+.for_register .g-form-row,
+.for_resetpass .g-form-row {
 	margin: 0 0 20px 0;
 	position: relative;
 }
 
-.for_register .g-form-row.check_wrong .g-form-row-state {
+.for_register .g-form-row.check_wrong .g-form-row-state,
+.for_resetpass .g-form-row.check_wrong .g-form-row-state {
 	height: auto;
 	opacity: 1;
 }
 
-.for_register .g-form-row-state {
+.for_register .g-form-row.check_success .g-form-row-state,
+.for_resetpass .g-form-row.check_success .g-form-row-state {
+	height: auto;
+	opacity: 1;
+	color: #339933;
+}
+
+.for_register .g-form-row-state,
+.for_resetpass .g-form-row-state {
 	clear: both;
 	color: #f44336;
 	font-size: 13px;
@@ -47,7 +58,8 @@ Template: Zephyr
 	transition: height 0.3s cubic-bezier(0.78, 0.13, 0.15, 0.86) 0s, opacity 0.3s ease 0s;
 }
 
-.for_register .g-form-field-label {
+.for_register .g-form-field-label,
+.for_resetpass .g-form-field-label {
 	font-size: 0.875em;
 	color: #707070;
 }
