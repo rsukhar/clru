@@ -56,53 +56,16 @@
 				// TODO Event-driven logins should not reload page
 				location.reload();
 			}, 'json');
-		},
-	// Attempt to logout
-		logout = function(){
-			var data = {
-				action: 'do_logout'
-			};
-			$.post(clruAjax.ajaxurl, data, function(response){
-				// Logout successful
-				location.reload();
-			}, 'json');
 		};
 	$overlay.on('click', hideForm);
 	$formCloser.on('click', hideForm);
 	$user.find('.i-login').on('click', showForm);
-	$user.find('.i-logout').on('click', logout);
 	$form.on('submit', function(event){
 		event.preventDefault();
 		var data = $form.serialize();
 		login(data);
 	});
 })(jQuery);
-
-/**
- * Getting/setting/removing modifier css classes
- * @param {String} mod Modifier namespace (the part before "_")
- * @param {String} [value] Value
- * @returns {string|jQuery}
- */
-jQuery.fn.mod = function(mod, value){
-	if (this.length == 0) return this;
-	// Deleting modifier
-	if (value === false) {
-		this.get(0).className = this.get(0).className.replace(new RegExp('(^| )' + mod + '\_[a-z0-9]+( |$)'), '$2');
-		return this;
-	}
-	var pcre = new RegExp('^.*?' + mod + '\_([a-z0-9]+).*?$'),
-		arr;
-	// Getting modifier
-	if (value === undefined) {
-		return (arr = pcre.exec(this.get(0).className)) ? arr[1] : false;
-	}
-	// Setting modifier
-	else {
-		this.mod(mod, false).get(0).className += ' ' + mod + '_' + value;
-		return this;
-	}
-};
 
 /**
  * Show errors from API request in some particular form

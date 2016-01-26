@@ -260,6 +260,114 @@ function clru_register_form( $atts ) {
 	return $output;
 }
 
+/*
+ * Based on core function retrieve_password(), located in wp-login.php
+ * Changed a message text and a link to password reset form.
+ */
+function clru_retrieve_password() {
+	global $wpdb, $wp_hasher;
+
+	$errors = new WP_Error();
+
+	if ( empty( $_POST['user_login'] ) ) {
+		$errors->add( 'empty_username', __( '<strong>ERROR</strong>: Enter a username or email address.' ) );
+	} elseif ( strpos( $_POST['user_login'], '@' ) ) {
+		$user_data = get_user_by( 'email', trim( $_POST['user_login'] ) );
+		if ( empty( $user_data ) ) {
+			$errors->add( 'invalid_email', __( '<strong>ERROR</strong>: There is no user registered with that email address.' ) );
+		}
+	} else {
+		$login = trim( $_POST['user_login'] );
+		$user_data = get_user_by( 'login', $login );
+	}
+
+	/**
+	 * Fires before errors are returned from a password reset request.
+	 *
+	 * @since 2.1.0
+	 * @since 4.4.0 Added the `$errors` parameter.
+	 *
+	 * @param WP_Error $errors A WP_Error object containing any errors generated
+	 *                         by using invalid credentials.
+	 */
+	do_action( 'lostpassword_post', $errors );
+
+	if ( $errors->get_error_code() ) {
+		return $errors;
+	}
+
+	if ( ! $user_data ) {
+		$errors->add( 'invalidcombo', __( '<strong>ERROR</strong>: Invalid username or email.' ) );
+
+		return $errors;
+	}
+
+	// Redefining user_login ensures we return the right case in the email.
+	$user_login = $user_data->user_login;
+	$user_email = $user_data->user_email;
+	$user_display_name = $user_data->display_name;
+	$key = get_password_reset_key( $user_data );
+
+	if ( is_wp_error( $key ) ) {
+		return $key;
+	}
+
+	if ( $user_display_name != '' ) {
+		$name_in_letter = $user_display_name;
+	} else {
+		$name_in_letter = $user_login;
+	}
+
+	$message = 'Привет, ' . $name_in_letter . '!' . "\r\n\r\n";
+	$message .= 'Кто-то запросил восстановление твоего пароля на сайте CodeLights.ru. Если это не ты, просто проигнорируй и удали это письмо.' . "\r\n\r\n";
+	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n";
+	$message .= '<' . network_site_url( "reset_password?key=$key&login=" . rawurlencode( $user_login ), 'login' ) . ">\r\n\r\n";
+	$message .= 'С наилучшими пожеланиями,' . "\r\n";
+	$message .= 'Команда UpSolution' . "\r\n";
+
+	if ( is_multisite() ) {
+		$blogname = $GLOBALS['current_site']->site_name;
+	} else /*
+		 * The blogname option is escaped with esc_html on the way into the database
+		 * in sanitize_option we want to reverse this for the plain text arena of emails.
+		 */ {
+		$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	}
+
+	$title = sprintf( __( '[%s] Password Reset' ), $blogname );
+
+	/**
+	 * Filter the subject of the password reset email.
+	 *
+	 * @since 2.8.0
+	 * @since 4.4.0 Added the `$user_login` and `$user_data` parameters.
+	 *
+	 * @param string $title Default email title.
+	 * @param string $user_login The username for the user.
+	 * @param WP_User $user_data WP_User object.
+	 */
+	$title = apply_filters( 'retrieve_password_title', $title, $user_login, $user_data );
+
+	/**
+	 * Filter the message body of the password reset mail.
+	 *
+	 * @since 2.8.0
+	 * @since 4.1.0 Added `$user_login` and `$user_data` parameters.
+	 *
+	 * @param string $message Default mail message.
+	 * @param string $key The activation key.
+	 * @param string $user_login The username for the user.
+	 * @param WP_User $user_data WP_User object.
+	 */
+	$message = apply_filters( 'retrieve_password_message', $message, $key, $user_login, $user_data );
+
+	if ( $message && ! wp_mail( $user_email, wp_specialchars_decode( $title ), $message ) ) {
+		wp_die( __( 'The email could not be sent.' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.' ) );
+	}
+
+	return TRUE;
+}
+
 add_shortcode( 'cl-request-password-reset', 'clru_password_reset_form' );
 function clru_password_reset_form( $atts ) {
 
@@ -268,10 +376,7 @@ function clru_password_reset_form( $atts ) {
 			$validate['email_valid_state'] = 'Пользователь с таким email не существует. Введите, пожалуйста, другой email или <a href="' . esc_url( home_url( '/register/' ) ) . 'request_password_reset/">зарегистрируйтесь</a>, если не регистрировались ранее. ';
 			$validate['email_state'] = 'check_wrong';
 		} else {
-			ob_start();
-			include_once( ABSPATH . '/wp-login.php' );
-			ob_end_clean();
-			$errors = retrieve_password();
+			$errors = clru_retrieve_password();
 			if ( $errors !== TRUE ) {
 				$validate['email_valid_state'] = $errors;
 				$validate['email_state'] = 'check_wrong';
@@ -360,14 +465,94 @@ function clru_do_login() {
 	die();
 }
 
-/**
- * Ajax for logout
- */
-add_action( 'wp_ajax_do_logout', 'clru_do_logout' );
-add_action( 'wp_ajax_nopriv_do_logout', 'clru_do_logout' );
-function clru_do_logout() {
-	wp_logout();
-	die();
+add_shortcode( 'cl-reset-password', 'clru_new_password_form' );
+function clru_new_password_form( $atts ) {
+
+	if ( $_GET['login'] ) {
+		$user_login = $_GET['login'];
+	} else if ( $_POST['user_login'] ) {
+		$user_login = $_POST['user_login'];
+	}
+
+	if ( $_GET['key'] ) {
+		$activation_key = $_GET['key'];
+	} else if ( $_POST['user_activation_key'] ) {
+		$activation_key = $_POST['user_activation_key'];
+	}
+
+	if ( $_POST['clru_new_password_request'] != '' ) {
+		if ( $_POST['user_activation_key'] != '' ) {
+			if ( $_POST['user_login'] != '' ) {
+				if ( $_POST['password'] != '' AND $_POST['password2'] != '' ) {
+					if ( trim( $_POST['password'] ) != trim( $_POST['password2'] ) ) {
+						$validate['password2_valid_state'] = 'Пароли не совпадают.';
+						$validate['password1_state'] = 'check_wrong';
+						$validate['password2_state'] = 'check_wrong';
+					} else {
+						$user = get_user_by( 'login', trim( $_POST['user_login'] ) );
+						if ( $user ) {
+							wp_set_password( trim( $_POST['password'] ), $user->ID );
+							$validate['password2_valid_state'] = 'Пароль успешно изменен!';
+							$validate['password2_state'] = 'check_success';
+						} else {
+							$validate['password2_valid_state'] = 'Неизвестный пользователь. Перейдите на данную страницу по ссылке из письма, в ней содержится имя пользователя.';
+							$validate['password2_state'] = 'check_wrong';
+						}
+					}
+				} else {
+					$validate['password2_valid_state'] = 'Необходимо ввести новый пароль и его подтверждение.';
+					$validate['password1_state'] = 'check_wrong';
+					$validate['password2_state'] = 'check_wrong';
+				}
+			} else {
+				$validate['password2_valid_state'] = 'Неизвестный пользователь. Перейдите на данную страницу по ссылке из письма, в ней содержится имя пользователя.';
+				$validate['password2_state'] = 'check_wrong';
+			}
+		} else {
+			$validate['password2_valid_state'] = 'Отсутствует ключ активации. Перейдите на данную страницу по ссылке из письма, в ней содержится ключ активации.';
+			$validate['password2_state'] = 'check_wrong';
+		}
+	}
+
+	$output = '<form action="' . get_the_permalink() . '" method="post" class="g-form for_newpass">';
+	$output .= '<div class="g-form-h">';
+	$output .= '<h2 class="g-form-title">Новый пароль</h2>';
+
+	$output .= '<div class="g-form-row for_text">Введите новый пароль.</div>';
+
+	$output .= '<div class="g-form-row for_password ' . $validate['password1_state'] . '">
+									<div class="g-form-field">
+										<input type="text" value="" name="password" id="newpass_password1">
+										<label for="newpass_password1" class="g-form-field-label">Новый пароль</label>
+										<div class="g-form-field-bar"></div>
+									</div>
+									<div class="g-form-row-state">' . $validate['password1_valid_state'] . '</div>
+								</div>';
+
+	$output .= '<div class="g-form-row for_password2 ' . $validate['password2_state'] . '">
+									<div class="g-form-field">
+										<input type="text" value="" name="password2" id="newpass_password2">
+										<label for="newpass_password2" class="g-form-field-label">Повторите пароль</label>
+										<div class="g-form-field-bar"></div>
+									</div>
+									<div class="g-form-row-state">' . $validate['password2_valid_state'] . '</div>
+								</div>';
+
+	$output .= '<div class="g-form-row for_submit">
+									<button class="g-btn color_primary type_raised">
+										<span class="g-preloader"></span>
+										<span class="g-btn-label">Задать новый пароль</span>
+									<span class="ripple-container"></span></button>
+									<div class="g-form-field-message"></div>
+								</div>
+
+							</div>
+							<input type="hidden" name="clru_new_password_request" value="TRUE">
+							<input type="hidden" name="user_login" value="' . esc_attr( $user_login ) . '">
+							<input type="hidden" name="user_activation_key" value="' . esc_attr( $activation_key ) . '">
+						</form>';
+
+	return $output;
 }
 
 ?>

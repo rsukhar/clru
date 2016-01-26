@@ -13,7 +13,7 @@ Domain Path: /languages
 Template: Zephyr
 */
 
-.g-form.for_login, .g-form.for_notification, .g-form.for_profile, .g-form.for_register, .g-form.for_resetpass, .g-form.for_ticket, .g-form.for_ticket_license {
+.g-form.for_login, .g-form.for_notification, .g-form.for_profile, .g-form.for_register, .g-form.for_resetpass, .g-form.for_newpass {
 	background-color: #fff;
 	border-radius: 2px;
 	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.05), 0 3px 7px 0 rgba(0, 0, 0, 0.25);
@@ -24,26 +24,30 @@ Template: Zephyr
 
 .for_register .g-preloader,
 .for_resetpass .g-preloader,
-.for_login .g-preloader {
+.for_login .g-preloader,
+.for_newpass .g-preloader {
 	display: none;
 }
 
 .for_register .g-form-row,
-.for_resetpass .g-form-row {
+.for_resetpass .g-form-row,
+.for_newpass .g-form-row {
 	margin: 0 0 20px 0;
 	position: relative;
 }
 
 .for_register .g-form-row.check_wrong .g-form-row-state,
 .for_resetpass .g-form-row.check_wrong .g-form-row-state,
-.for_login .g-form-row.check_wrong .g-form-row-state{
+.for_login .g-form-row.check_wrong .g-form-row-state,
+.for_newpass .g-form-row.check_wrong .g-form-row-state {
 	height: auto;
 	opacity: 1;
 }
 
 .for_register .g-form-row.check_success .g-form-row-state,
 .for_resetpass .g-form-row.check_success .g-form-row-state,
-.for_login .g-form-row.check_success .g-form-row-state{
+.for_login .g-form-row.check_success .g-form-row-state,
+.for_newpass .g-form-row.check_success .g-form-row-state {
 	height: auto;
 	opacity: 1;
 	color: #339933;
@@ -51,7 +55,8 @@ Template: Zephyr
 
 .for_register .g-form-row-state,
 .for_resetpass .g-form-row-state,
-.for_login .g-form-row-state{
+.for_login .g-form-row-state,
+.for_newpass .g-form-row-state {
 	clear: both;
 	color: #f44336;
 	font-size: 13px;
@@ -64,7 +69,8 @@ Template: Zephyr
 
 .for_register .g-form-field-label,
 .for_resetpass .g-form-field-label,
-.for_login .g-form-field-label{
+.for_login .g-form-field-label,
+.for_newpass .g-form-field-label {
 	font-size: 0.875em;
 	color: #707070;
 }
