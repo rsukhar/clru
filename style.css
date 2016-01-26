@@ -23,7 +23,8 @@ Template: Zephyr
 }
 
 .for_register .g-preloader,
-.for_resetpass .g-preloader {
+.for_resetpass .g-preloader,
+.for_login .g-preloader {
 	display: none;
 }
 
@@ -34,20 +35,23 @@ Template: Zephyr
 }
 
 .for_register .g-form-row.check_wrong .g-form-row-state,
-.for_resetpass .g-form-row.check_wrong .g-form-row-state {
+.for_resetpass .g-form-row.check_wrong .g-form-row-state,
+.for_login .g-form-row.check_wrong .g-form-row-state{
 	height: auto;
 	opacity: 1;
 }
 
 .for_register .g-form-row.check_success .g-form-row-state,
-.for_resetpass .g-form-row.check_success .g-form-row-state {
+.for_resetpass .g-form-row.check_success .g-form-row-state,
+.for_login .g-form-row.check_success .g-form-row-state{
 	height: auto;
 	opacity: 1;
 	color: #339933;
 }
 
 .for_register .g-form-row-state,
-.for_resetpass .g-form-row-state {
+.for_resetpass .g-form-row-state,
+.for_login .g-form-row-state{
 	clear: both;
 	color: #f44336;
 	font-size: 13px;
@@ -59,7 +63,95 @@ Template: Zephyr
 }
 
 .for_register .g-form-field-label,
-.for_resetpass .g-form-field-label {
+.for_resetpass .g-form-field-label,
+.for_login .g-form-field-label{
 	font-size: 0.875em;
 	color: #707070;
+}
+
+.l-subheader .w-user-block {
+	display: inline-block;
+	margin-left: 16px;
+	vertical-align: top;
+}
+
+.l-subheader.at_top .w-user-block {
+	float: right;
+}
+
+.w-user-block {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.w-user-block-item {
+	display: inline-block;
+	position: relative;
+	vertical-align: top;
+	font-size: 16px;
+}
+
+.w-user-block-link {
+	display: block;
+	overflow: hidden;
+	position: relative;
+	text-align: center;
+	z-index: 0;
+	opacity: 0.75;
+	color: #ffffff;
+	padding: 0 10px;
+}
+
+.w-user-block-link:hover {
+	color: #ffffff !important;
+	opacity: 1;
+}
+
+.w-user-block-link::after, .w-user-block-link i {
+	display: block;
+	line-height: inherit;
+	position: relative;
+}
+
+.for_login .g-closer {
+	cursor: pointer;
+	display: block;
+	font: 24px/50px mdfonticon;
+	margin: 0;
+	opacity: 0.3;
+	padding: 0;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	text-rendering: auto;
+	top: 0;
+	transition: opacity 0.3s ease 0s;
+	width: 50px;
+}
+
+.g-overlay {
+	background-color: #000;
+	cursor: pointer;
+	display: block;
+	height: 100%;
+	left: 0;
+	opacity: 0.8;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 10;
+}
+
+.g-form.for_login.fixed {
+	left: 50%;
+	margin-left: -300px;
+	margin-top: -160px;
+	position: fixed;
+	top: 50%;
+	width: 600px;
+	z-index: 100;
+}
+
+.for_login .g-checkbox {
+	margin-left: 20px;
 }
