@@ -45,13 +45,13 @@
 				$form.find('.g-form-row.check_wrong').removeClass('check_wrong');
 				$form.find('.g-form-row-state').html('');
 				// Login failed
+				console.log(response.data);
 				if (!response.success) {
-					$form.showErrors(response.errors);
+					$form.showErrors(response.data);
 					return;
 				}
 				// Login successful
-				var data = response.data,
-					message = response.message;
+				var data = response.data;
 
 				// TODO Event-driven logins should not reload page
 				location.reload();

@@ -40,13 +40,18 @@ require $us_stylesheet_directory . '/functions/vc_map.php';
  */
 require $us_stylesheet_directory . '/functions/shortcodes.php';
 
+/**
+ * Include authorization functions
+ */
+require $us_stylesheet_directory . '/functions/auth.php';
+
 add_action( 'init', 'new_user_redirect' );
 function new_user_redirect() {
 	global $validate;
 	if ( $_POST['clru_register_validation_required'] != '' ) {
 		$register_error = '';
 
-		$secret_key = us_get_option( 'google_recaptcha_secret_key', $default_value = NULL );
+		$secret_key = us_get_option( 'google_recaptcha_secret_key' );
 
 		if ( $secret_key ) {
 			$url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $secret_key . '&response=' . $_POST['captcha_response'] . '&remoteip=' . $_SERVER['REMOTE_ADDR'];
@@ -191,7 +196,7 @@ function new_user_redirect() {
  * @return bool
  */
 function clru_retrieve_password() {
-	global $wpdb, $wp_hasher;
+	global $wpdb, $wp_hasher, $us_stylesheet_directory;
 
 	$errors = new WP_Error();
 
@@ -244,12 +249,9 @@ function clru_retrieve_password() {
 		$name_in_letter = $user_login;
 	}
 
-	$message = 'Привет, ' . $name_in_letter . '!' . "\r\n\r\n";
-	$message .= 'Кто-то запросил восстановление твоего пароля на сайте CodeLights.ru. Если это не ты, просто проигнорируй и удали это письмо.' . "\r\n\r\n";
-	$message .= __( 'To reset your password, visit the following address:' ) . "\r\n";
-	$message .= '<' . network_site_url( "reset_password?key=$key&login=" . rawurlencode( $user_login ), 'login' ) . ">\r\n\r\n";
-	$message .= 'С наилучшими пожеланиями,' . "\r\n";
-	$message .= 'Команда UpSolution' . "\r\n";
+	ob_start();
+	require $us_stylesheet_directory . '/templates/elements/clru-retrieve-password-message.php';
+	ob_get_clean();
 
 	if ( is_multisite() ) {
 		$blogname = $GLOBALS['current_site']->site_name;
@@ -294,52 +296,18 @@ function clru_retrieve_password() {
 	return TRUE;
 }
 
-/**
- * Ajax for login
- */
-add_action( 'wp_ajax_do_login', 'clru_do_login' );
-add_action( 'wp_ajax_nopriv_do_login', 'clru_do_login' );
-function clru_do_login() {
+add_action( 'wp_footer', 'clru_login_form', 10 );
+function clru_login_form() {
+	global $us_stylesheet_directory;
 
-	check_ajax_referer( 'clru_do_login_nonce', '_ajax_nonce' );
+	require $us_stylesheet_directory . '/templates/elements/cl-login.php';
+}
 
-	if ( $_POST['username'] != '' AND $_POST['password'] != '' ) {
-		if ( ! filter_var( trim( $_POST['username'] ), FILTER_VALIDATE_EMAIL ) ) {
-			$user = get_user_by( 'login', trim( $_POST['username'] ) );
-		} else if ( filter_var( trim( $_POST['username'] ), FILTER_VALIDATE_EMAIL ) ) {
-			$user = get_user_by( 'email', trim( $_POST['username'] ) );
-		} else {
-			$errors['username'] = 'Неправильное имя пользователя.';
-		}
-		if ( $user ) {
-			if ( ! wp_check_password( trim( $_POST['password'] ), $user->user_pass, $user->ID ) ) {
-				$errors['password'] = 'Неправильные имя пользователя или пароль.';
-			} else {
-				if ( $_POST['remember'] == '1' ) {
-					$remember = TRUE;
-				} else {
-					$remember = FALSE;
-				}
-				wp_set_current_user( $user->ID, $_POST['username'] );
-				wp_set_auth_cookie( $user->ID, $remember );
-				do_action( 'wp_login', $_POST['username'] );
-				$success = 'OK';
-			}
-		} else {
-			$errors['username'] = 'Неправильное имя пользователя.';
-		}
-	} else {
-		$errors['username'] = 'Нужно ввести имя пользователя и пароль';
+add_action( 'us_top_subheader_end', 'clru_load_user_block', 10 );
+function clru_load_user_block() {
+	if ( us_get_option( 'header_userblock_show' ) ) {
+		us_load_template( 'templates/widgets/user-block' );
 	}
-
-	$response = array(
-		'success' => $success,
-		'errors' => $errors,
-		'post_username' => $_POST['username'],
-		'post_password' => $_POST['password'],
-	);
-	echo json_encode( $response );
-	die();
 }
 
 ?>
