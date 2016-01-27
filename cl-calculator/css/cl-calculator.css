@@ -59,6 +59,7 @@
 }
 
 .cl-calculator-list-item-title {
+	margin-right: 5px;
 }
 
 .cl-calculator-list-item-title:before {
@@ -84,7 +85,6 @@ input[type="checkbox"]:checked + .cl-calculator-list-item-title:before {
 	font-family: FontAwesome;
 	content: "\f059";
 	display: inline-block;
-	margin-left: 5px;
 	color: #b3b3b3;
 	cursor: help;
 }
