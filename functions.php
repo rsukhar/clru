@@ -2,16 +2,21 @@
 /* required for register form validation */
 $validate = '';
 
-add_action( 'wp_enqueue_scripts', 'clru_theme_enqueue_styles' );
-function clru_theme_enqueue_styles() {
-	wp_enqueue_style( 'codelights-parent-style', get_template_directory_uri() . '/style.css' );
-}
+$us_template_directory = get_template_directory();
+$us_stylesheet_directory = get_stylesheet_directory();
+// Removing protocols for better compatibility with caching plugins and services
+$us_template_directory_uri = str_replace( array( 'http:', 'https:' ), '', get_template_directory_uri() );
+$us_stylesheet_directory_uri = str_replace( array( 'http:', 'https:' ), '', get_stylesheet_directory_uri() );
 
 add_action( 'wp_enqueue_scripts', 'clru_assets' );
 function clru_assets() {
-	wp_register_script( 'child-main', get_stylesheet_directory_uri() . '/assets/js/main.js', array(), FALSE, TRUE );
-	wp_localize_script( 'child-main', 'clruAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
-	wp_enqueue_script( 'child-main' );
+	global $us_stylesheet_directory_uri, $us_template_directory;
+
+	wp_enqueue_style( 'clru-parent-style', $us_template_directory . '/style.css' );
+
+	wp_register_script( 'clru-child-main', $us_stylesheet_directory_uri . '/js/main.js', array(), FALSE, TRUE );
+	wp_localize_script( 'clru-child-main', 'clruAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+	wp_enqueue_script( 'clru-child-main' );
 
 	if ( is_page( 'register' ) ) {
 		wp_enqueue_script( 'recaptcha', 'https://www.google.com/recaptcha/api.js', array(), FALSE, TRUE );
@@ -26,9 +31,14 @@ function clru_disable_admin_bar() {
 }
 
 /**
- * include cl_calculator plugin files
+ * Include Visual Composer map
  */
-require get_stylesheet_directory() . '/cl-calculator/cl-calculator.php';
+require $us_stylesheet_directory . '/functions/vc_map.php';
+
+/**
+ * Include shortcodes
+ */
+require $us_stylesheet_directory . '/functions/shortcodes.php';
 
 add_action( 'init', 'new_user_redirect' );
 function new_user_redirect() {
@@ -174,95 +184,11 @@ function new_user_redirect() {
 	}
 }
 
-add_shortcode( 'cl-register', 'clru_register_form' );
-function clru_register_form( $atts ) {
-	global $validate;
-
-	$output = '<form action="' . get_the_permalink() . '" method="post" class="g-form align_left for_register">';
-	$output .= '<div class="g-form-h">';
-	$output .= '<h2 class="g-form-title">Создать аккаунт</h2>';
-	$output .= '<div class="g-form-row for_username ' . $validate['username_state'] . '">
-									<div class="g-form-field">
-										<input type="text" name="username" id="signup_username" value="' . esc_attr( $_POST['username'] ) . '">
-										<label for="signup_username" class="g-form-field-label">Логин</label>
-										<div class="g-form-field-bar"></div>
-									</div>';
-	$output .= '<div class="g-form-row-state">' . $validate['username_exists_state'] . '</div>';
-	$output .= '</div>';
-
-	$output .= '<div class="g-form-row for_realname ' . $validate['realname_state'] . '">
-									<div class="g-form-field">
-										<input type="text" name="realname" id="signup_realname" value="' . esc_attr( $_POST['realname'] ) . '">
-										<label for="signup_realname" class="g-form-field-label">Имя и фамилия</label>
-										<div class="g-form-field-bar"></div>
-									</div>';
-	$output .= '<div class="g-form-row-state">' . $validate['realname_valid_state'] . '</div>';
-	$output .= '</div>';
-
-	$output .= '<div class="g-form-row for_email ' . $validate['email_state'] . '">
-									<div class="g-form-field">
-										<input type="text" name="email" id="signup_email" value="' . esc_attr( $_POST['email'] ) . '">
-										<label for="signup_email" class="g-form-field-label">Email</label>
-										<div class="g-form-field-bar"></div>
-									</div>';
-	$output .= '<div class="g-form-row-state">' . $validate['email_valid_state'] . '</div>';
-	$output .= '</div>';
-
-	$output .= '<div class="g-form-row for_password ' . $validate['password1_state'] . '">
-									<div class="g-form-field">
-										<input type="password" name="password" id="signup_password" value="">
-										<label for="signup_password" class="g-form-field-label">Пароль</label>
-										<div class="g-form-field-bar"></div>
-									</div>
-									<div class="g-form-row-state">' . $validate['password1_valid_state'] . '</div>
-								</div>';
-
-	$output .= '<div class="g-form-row for_password ' . $validate['password2_state'] . '">
-									<div class="g-form-field">
-										<input type="password" name="password2" id="signup_password2" value="">
-										<label for="signup_password2" class="g-form-field-label">Подтвердите пароль</label>
-										<div class="g-form-field-bar"></div>
-									</div>
-									<div class="g-form-row-state">' . $validate['password2_valid_state'] . '</div>
-								</div>';
-
-	$public_key = us_get_option( 'google_recaptcha_public_key', $default_value = NULL );
-
-	if ( $public_key != '' ) {
-		$output .= '<div class="g-form-row for_recaptcha ' . $validate['recaptcha_state'] . '">
-									<div class="g-form-field">
-										<div class="g-recaptcha" data-sitekey="' . $public_key . '"></div>
-									</div>
-									<div class="g-form-row-state">' . $validate['recaptcha_valid_state'] . '</div>
-								</div>';
-	}
-
-	$output .= '<div class="g-form-row for_agree ' . $validate['agree_state'] . '">
-									<label for="agree" class="g-checkbox">
-										<input type="hidden" value="0" name="agree">
-										<input type="checkbox" value="1" id="agree" name="agree" class="not-empty"> Я принимаю правила использования сайта и даю согласие не обработку персональных данных</a>
-									</label>
-									<div class="g-form-row-state">' . $validate['agree_valid_state'] . '</div>
-								</div>';
-
-	$output .= '<div class="g-form-row for_submit">
-									<input type="hidden" name="clru_register_validation_required" value="TRUE">
-									<button class="g-btn color_primary type_raised">
-										<span class="g-preloader"></span>
-										<span class="g-btn-label">Отправить</span>
-									<span class="ripple-container"></span></button>
-									<div class="g-form-field-message"></div>
-								</div>
-
-							</div>
-						</form>';
-
-	return $output;
-}
-
 /*
  * Based on core function retrieve_password(), located in wp-login.php
  * Changed a message text and a link to password reset form.
+ *
+ * @return bool
  */
 function clru_retrieve_password() {
 	global $wpdb, $wp_hasher;
@@ -368,55 +294,6 @@ function clru_retrieve_password() {
 	return TRUE;
 }
 
-add_shortcode( 'cl-request-password-reset', 'clru_password_reset_form' );
-function clru_password_reset_form( $atts ) {
-
-	if ( $_POST['clru_request_password_reset'] != '' ) {
-		if ( ! email_exists( trim( $_POST['user_login'] ) ) ) {
-			$validate['email_valid_state'] = 'Пользователь с таким email не существует. Введите, пожалуйста, другой email или <a href="' . esc_url( home_url( '/register/' ) ) . 'request_password_reset/">зарегистрируйтесь</a>, если не регистрировались ранее. ';
-			$validate['email_state'] = 'check_wrong';
-		} else {
-			$errors = clru_retrieve_password();
-			if ( $errors !== TRUE ) {
-				$validate['email_valid_state'] = $errors;
-				$validate['email_state'] = 'check_wrong';
-			} else {
-				$validate['email_valid_state'] = 'Письмо для восстановления пароля отправлено на ваш email';
-				$validate['email_state'] = 'check_success';
-			}
-		}
-	}
-
-	$output = '<form action="' . get_the_permalink() . '" method="post" class="g-form for_resetpass">';
-	$output .= '<div class="g-form-h">';
-	$output .= '<h2 class="g-form-title">Восстановление пароля</h2>';
-
-	$output .= '<div class="g-form-row for_text">Введите email, который вы указали при регистрации.</div>';
-
-	$output .= '<div class="g-form-row for_email ' . $validate['email_state'] . '">
-									<div class="g-form-field">
-										<input type="text" value="" name="user_login" id="resetpass_email">
-										<label for="resetpass_email" class="g-form-field-label">Email</label>
-										<div class="g-form-field-bar"></div>
-									</div>
-									<div class="g-form-row-state">' . $validate['email_valid_state'] . '</div>
-								</div>';
-
-	$output .= '<div class="g-form-row for_submit">
-									<input type="hidden" name="clru_request_password_reset" value="TRUE">
-									<button class="g-btn color_primary type_raised">
-										<span class="g-preloader"></span>
-										<span class="g-btn-label">Восстановить пароль</span>
-									<span class="ripple-container"></span></button>
-									<div class="g-form-field-message"></div>
-								</div>
-
-							</div>
-						</form>';
-
-	return $output;
-}
-
 /**
  * Ajax for login
  */
@@ -463,96 +340,6 @@ function clru_do_login() {
 	);
 	echo json_encode( $response );
 	die();
-}
-
-add_shortcode( 'cl-reset-password', 'clru_new_password_form' );
-function clru_new_password_form( $atts ) {
-
-	if ( $_GET['login'] ) {
-		$user_login = $_GET['login'];
-	} else if ( $_POST['user_login'] ) {
-		$user_login = $_POST['user_login'];
-	}
-
-	if ( $_GET['key'] ) {
-		$activation_key = $_GET['key'];
-	} else if ( $_POST['user_activation_key'] ) {
-		$activation_key = $_POST['user_activation_key'];
-	}
-
-	if ( $_POST['clru_new_password_request'] != '' ) {
-		if ( $_POST['user_activation_key'] != '' ) {
-			if ( $_POST['user_login'] != '' ) {
-				if ( $_POST['password'] != '' AND $_POST['password2'] != '' ) {
-					if ( trim( $_POST['password'] ) != trim( $_POST['password2'] ) ) {
-						$validate['password2_valid_state'] = 'Пароли не совпадают.';
-						$validate['password1_state'] = 'check_wrong';
-						$validate['password2_state'] = 'check_wrong';
-					} else {
-						$user = get_user_by( 'login', trim( $_POST['user_login'] ) );
-						if ( $user ) {
-							wp_set_password( trim( $_POST['password'] ), $user->ID );
-							$validate['password2_valid_state'] = 'Пароль успешно изменен!';
-							$validate['password2_state'] = 'check_success';
-						} else {
-							$validate['password2_valid_state'] = 'Неизвестный пользователь. Перейдите на данную страницу по ссылке из письма, в ней содержится имя пользователя.';
-							$validate['password2_state'] = 'check_wrong';
-						}
-					}
-				} else {
-					$validate['password2_valid_state'] = 'Необходимо ввести новый пароль и его подтверждение.';
-					$validate['password1_state'] = 'check_wrong';
-					$validate['password2_state'] = 'check_wrong';
-				}
-			} else {
-				$validate['password2_valid_state'] = 'Неизвестный пользователь. Перейдите на данную страницу по ссылке из письма, в ней содержится имя пользователя.';
-				$validate['password2_state'] = 'check_wrong';
-			}
-		} else {
-			$validate['password2_valid_state'] = 'Отсутствует ключ активации. Перейдите на данную страницу по ссылке из письма, в ней содержится ключ активации.';
-			$validate['password2_state'] = 'check_wrong';
-		}
-	}
-
-	$output = '<form action="' . get_the_permalink() . '" method="post" class="g-form for_newpass">';
-	$output .= '<div class="g-form-h">';
-	$output .= '<h2 class="g-form-title">Новый пароль</h2>';
-
-	$output .= '<div class="g-form-row for_text">Введите новый пароль.</div>';
-
-	$output .= '<div class="g-form-row for_password ' . $validate['password1_state'] . '">
-									<div class="g-form-field">
-										<input type="text" value="" name="password" id="newpass_password1">
-										<label for="newpass_password1" class="g-form-field-label">Новый пароль</label>
-										<div class="g-form-field-bar"></div>
-									</div>
-									<div class="g-form-row-state">' . $validate['password1_valid_state'] . '</div>
-								</div>';
-
-	$output .= '<div class="g-form-row for_password2 ' . $validate['password2_state'] . '">
-									<div class="g-form-field">
-										<input type="text" value="" name="password2" id="newpass_password2">
-										<label for="newpass_password2" class="g-form-field-label">Повторите пароль</label>
-										<div class="g-form-field-bar"></div>
-									</div>
-									<div class="g-form-row-state">' . $validate['password2_valid_state'] . '</div>
-								</div>';
-
-	$output .= '<div class="g-form-row for_submit">
-									<button class="g-btn color_primary type_raised">
-										<span class="g-preloader"></span>
-										<span class="g-btn-label">Задать новый пароль</span>
-									<span class="ripple-container"></span></button>
-									<div class="g-form-field-message"></div>
-								</div>
-
-							</div>
-							<input type="hidden" name="clru_new_password_request" value="TRUE">
-							<input type="hidden" name="user_login" value="' . esc_attr( $user_login ) . '">
-							<input type="hidden" name="user_activation_key" value="' . esc_attr( $activation_key ) . '">
-						</form>';
-
-	return $output;
 }
 
 ?>
