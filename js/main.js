@@ -53,8 +53,8 @@
 				// Login successful
 				var data = response.data;
 
-				// TODO Event-driven logins should not reload page
-				location.reload();
+				// here was 'location.reload' but it call form re-submission
+				window.location.href = window.location.href;
 			}, 'json');
 		};
 	$overlay.on('click', hideForm);
