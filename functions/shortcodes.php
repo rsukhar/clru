@@ -6,26 +6,51 @@
 add_action( 'init', 'clru_register_shortcodes', 20 );
 function clru_register_shortcodes() {
 	// calculator
-	add_shortcode( 'cl-calculator', 'clc_handle_shortcode' );
+	add_shortcode( 'cl-calculator', 'clru_shortcode_calcularor' );
 
 	// registration form
-	add_shortcode( 'cl-register', 'clru_register_form' );
+	add_shortcode( 'cl-register', 'clru_shortcode_register' );
 
 	// request password reset form
-	add_shortcode( 'cl-request-password-reset', 'clru_password_reset_form' );
+	add_shortcode( 'cl-request-password-reset', 'clru_shortcode_request_password_reset' );
 
 	// password reset form
-	add_shortcode( 'cl-reset-password', 'clru_new_password_form' );
+	add_shortcode( 'cl-reset-password', 'clru_shortcode_reset_password' );
 }
 
 /**
- * Shortcode for registration form
+ * Shortcode for calculator
+ *
  * @param $atts
  *
  * @return string
  */
-function clru_register_form( $atts ) {
-	global $validate, $us_stylesheet_directory;
+function clru_shortcode_calcularor( $atts ) {
+	global $us_stylesheet_directory;
+
+	$defaults = array(
+		'basic_rate' => 0,
+		'required_skills' => '',
+		'skills' => '',
+		'extra_class' => '',
+	);
+	$atts = array_intersect_key( $atts, $defaults );
+	extract( $atts );
+	ob_start();
+	require $us_stylesheet_directory . '/templates/elements/cl-calculator.php';
+
+	return ob_get_clean();
+}
+
+/**
+ * Shortcode for registration form
+ *
+ * @param $atts
+ *
+ * @return string
+ */
+function clru_shortcode_register( $atts ) {
+	global $clru_validate, $us_stylesheet_directory;
 
 	$username = $_POST['username'];
 	$realname = $_POST['realname'];
@@ -40,11 +65,12 @@ function clru_register_form( $atts ) {
 
 /**
  * Shortcode for request password reset form
+ *
  * @param $atts
  *
  * @return string
  */
-function clru_password_reset_form( $atts ) {
+function clru_shortcode_request_password_reset( $atts ) {
 	global $us_stylesheet_directory;
 
 	if ( $_POST['clru_request_password_reset'] != '' ) {
@@ -71,11 +97,12 @@ function clru_password_reset_form( $atts ) {
 
 /**
  * Shortcode for password reset form
+ *
  * @param $atts
  *
  * @return string
  */
-function clru_new_password_form( $atts ) {
+function clru_shortcode_reset_password( $atts ) {
 	global $us_stylesheet_directory;
 
 	if ( $_GET['login'] ) {
@@ -130,28 +157,3 @@ function clru_new_password_form( $atts ) {
 	return ob_get_clean();
 }
 
-
-/**
- * Shortcode for calculator
- * @param $atts
- *
- * @return string
- */
-if ( ! function_exists( 'clc_handle_shortcode' ) ) {
-	function clc_handle_shortcode( $atts ) {
-		global $us_stylesheet_directory;
-
-		$defaults = array(
-			'basic_rate' => 0,
-			'required_skills' => '',
-			'skills' => '',
-			'extra_class' => '',
-		);
-		$atts = array_intersect_key( $atts, $defaults );
-		extract( $atts );
-		ob_start();
-		require $us_stylesheet_directory . '/templates/elements/cl-calculator.php';
-
-		return ob_get_clean();
-	}
-}

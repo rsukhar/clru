@@ -10,13 +10,13 @@ $output .= '<h2 class="g-form-title">Восстановление пароля</
 
 $output .= '<div class="g-form-row for_text">Введите email, который вы указали при регистрации.</div>';
 
-$output .= '<div class="g-form-row for_email ' . $validate['email_state'] . '">
+$output .= '<div class="g-form-row for_email ' . $clru_validate['email_state'] . '">
 				<div class="g-form-field">
 					<input type="text" value="" name="user_login" id="resetpass_email">
 					<label for="resetpass_email" class="g-form-field-label">Email</label>
 					<div class="g-form-field-bar"></div>
 				</div>
-				<div class="g-form-row-state">' . $validate['email_valid_state'] . '</div>
+				<div class="g-form-row-state">' . $clru_validate['email_valid_state'] . '</div>
 			</div>';
 
 $output .= '<div class="g-form-row for_submit">

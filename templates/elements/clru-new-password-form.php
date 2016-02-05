@@ -10,22 +10,22 @@ $output .= '<h2 class="g-form-title">Новый пароль</h2>';
 
 $output .= '<div class="g-form-row for_text">Введите новый пароль.</div>';
 
-$output .= '<div class="g-form-row for_password ' . $validate['password1_state'] . '">
+$output .= '<div class="g-form-row for_password ' . $clru_validate['password1_state'] . '">
 				<div class="g-form-field">
 					<input type="text" value="" name="password" id="newpass_password1">
 					<label for="newpass_password1" class="g-form-field-label">Новый пароль</label>
 					<div class="g-form-field-bar"></div>
 				</div>
-				<div class="g-form-row-state">' . $validate['password1_valid_state'] . '</div>
+				<div class="g-form-row-state">' . $clru_validate['password1_valid_state'] . '</div>
 			</div>';
 
-$output .= '<div class="g-form-row for_password2 ' . $validate['password2_state'] . '">
+$output .= '<div class="g-form-row for_password2 ' . $clru_validate['password2_state'] . '">
 				<div class="g-form-field">
 					<input type="text" value="" name="password2" id="newpass_password2">
 					<label for="newpass_password2" class="g-form-field-label">Повторите пароль</label>
 					<div class="g-form-field-bar"></div>
 				</div>
-				<div class="g-form-row-state">' . $validate['password2_valid_state'] . '</div>
+				<div class="g-form-row-state">' . $clru_validate['password2_valid_state'] . '</div>
 			</div>';
 
 $output .= '<div class="g-form-row for_submit">
