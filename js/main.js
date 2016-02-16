@@ -24,6 +24,9 @@
 	var $body = $('body'),
 		$form = $('.g-form.for_login').detach().css('display', ''),
 		$formCloser = $form.find('.g-closer'),
+		$formRegister = $('.g-form.for_register'),
+		$formRequestReset = $('.g-form.for_resetpass'),
+		$formNewPassword = $('.g-form.for_newpass'),
 		$overlay = $('<div class="g-overlay">&nbsp;</div>'),
 		$user = $('#user-block'),
 		$userNav = $('#user-nav'),
@@ -45,7 +48,6 @@
 				$form.find('.g-form-row.check_wrong').removeClass('check_wrong');
 				$form.find('.g-form-row-state').html('');
 				// Login failed
-				console.log(response.data);
 				if (!response.success) {
 					$form.showErrors(response.data);
 					return;
@@ -56,7 +58,48 @@
 				// here was 'location.reload' but it call form re-submission
 				window.location.href = window.location.href;
 			}, 'json');
-		};
+		},
+	// Attempt to register user using the provided data
+		register = function(data){
+			$.post(clruAjax.ajaxurl, data, function(response){
+				// Clearing error messages
+				$formRegister.find('.g-form-row.check_wrong').removeClass('check_wrong');
+				$formRegister.find('.g-form-row-state').html('');
+				// Login failed
+				if (!response.success) {
+					$formRegister.showErrors(response.data);
+					return;
+				}
+				window.location.href = '/';
+			}, 'json');
+		},
+	// Attempt to register user using the provided data
+		requestReset = function(data){
+			$.post(clruAjax.ajaxurl, data, function(response){
+				// Clearing error messages
+				$formRequestReset.find('.g-form-row.check_wrong').removeClass('check_wrong');
+				$formRequestReset.find('.g-form-row-state').html('');
+				// Login failed
+				if (!response.success) {
+					$formRequestReset.showErrors(response.data);
+					return;
+				}
+			}, 'json');
+		},
+	// Attempt to register user using the provided data
+	newPassword = function(data){
+		$.post(clruAjax.ajaxurl, data, function(response){
+			// Clearing error messages
+			$formNewPassword.find('.g-form-row.check_wrong').removeClass('check_wrong');
+			$formNewPassword.find('.g-form-row-state').html('');
+			// Login failed
+			if (!response.success) {
+				$formNewPassword.showErrors(response.data);
+				return;
+			}
+		}, 'json');
+	};
+
 	$overlay.on('click', hideForm);
 	$formCloser.on('click', hideForm);
 	$user.find('.i-login').on('click', showForm);
@@ -64,6 +107,21 @@
 		event.preventDefault();
 		var data = $form.serialize();
 		login(data);
+	});
+	$formRegister.on('submit', function(event){
+		event.preventDefault();
+		var data = $formRegister.serialize();
+		register(data);
+	});
+	$formRequestReset.on('submit', function(event){
+		event.preventDefault();
+		var data = $formRequestReset.serialize();
+		requestReset(data);
+	});
+	$formNewPassword.on('submit', function(event){
+		event.preventDefault();
+		var data = $formNewPassword.serialize();
+		newPassword(data);
 	});
 })(jQuery);
 

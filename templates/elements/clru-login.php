@@ -1,5 +1,11 @@
 <?php defined( 'ABSPATH' ) OR die( 'This script cannot be accessed directly.' );
 
+/**
+ * Output a user login form.
+ *
+ */
+
+
 $output = '<form method="post" class="g-form for_login align_left fixed">
 	<div class="g-form-h">
 		<h2 class="g-form-title">Авторизация</h2>
