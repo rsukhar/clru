@@ -37,7 +37,7 @@ function clru_shortcode_calcularor( $atts ) {
 	$atts = array_intersect_key( $atts, $defaults );
 	extract( $atts );
 	ob_start();
-	require $us_stylesheet_directory . '/templates/elements/cl-calculator.php';
+	require $us_stylesheet_directory . '/templates/elements/clru-calculator.php';
 
 	return ob_get_clean();
 }
