@@ -3,7 +3,6 @@
 /**
  * Ajax for login
  */
-add_action( 'wp_ajax_do_login', 'clru_do_login' );
 add_action( 'wp_ajax_nopriv_do_login', 'clru_do_login' );
 function clru_do_login() {
 
@@ -43,7 +42,6 @@ function clru_do_login() {
 /**
  * Ajax for register
  */
-add_action( 'wp_ajax_do_register', 'clru_do_register' );
 add_action( 'wp_ajax_nopriv_do_register', 'clru_do_register' );
 function clru_do_register() {
 
@@ -184,7 +182,6 @@ function clru_do_register() {
 /**
  * Ajax for password reset request form
  */
-add_action( 'wp_ajax_do_password_request', 'clru_do_password_request' );
 add_action( 'wp_ajax_nopriv_do_password_request', 'clru_do_password_request' );
 function clru_do_password_request() {
 
@@ -209,7 +206,6 @@ function clru_do_password_request() {
 /**
  * Ajax for password reset request form
  */
-add_action( 'wp_ajax_do_new_password', 'clru_do_new_password' );
 add_action( 'wp_ajax_nopriv_do_new_password', 'clru_do_new_password' );
 function clru_do_new_password() {
 

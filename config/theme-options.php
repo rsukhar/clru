@@ -14,15 +14,12 @@ $config['generalsettings']['fields'] = us_array_merge_insert( $config['generalse
 		'std' => '',
 		'type' => 'text',
 	),
-), 'after', 'custom_html' );
-
-$config['generalsettings']['fields'] = us_array_merge_insert( $config['generalsettings']['fields'], array(
 	'google_recaptcha_secret_key' => array(
 		'title' => 'Секретный ключ reCaptcha',
 		'std' => '',
 		'type' => 'text',
 	),
-), 'after', 'google_recaptcha_secret_key' );
+), 'after', 'custom_html' );
 
 $config['headeroptions']['fields'] = us_array_merge_insert( $config['headeroptions']['fields'], array(
 	'header_userblock_show' => array(
@@ -34,19 +31,6 @@ $config['headeroptions']['fields'] = us_array_merge_insert( $config['headeroptio
 	),
 ), 'after', 'header_language_show' );
 
-$config['headeroptions']['fields'] = us_array_merge_insert( $config['headeroptions']['fields'], array(
-	'header_layout' => array(
-		'type' => 'imgradio',
-		'options' => array(
-			'standard' => 'framework/admin/img/header1.png',
-			'extended' => 'framework/admin/img/header2.png',
-			'advanced' => 'framework/admin/img/header3.png',
-			'centered' => 'framework/admin/img/header4.png',
-			'sided' => 'framework/admin/img/header5.png',
-		),
-		'std' => 'extended',
-		'classes' => 'title_top',
-	),
-) );
+$config['headeroptions']['fields']['header_layout']['std'] = 'extended';
 
 return $config;

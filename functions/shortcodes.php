@@ -52,12 +52,17 @@ function clru_shortcode_calcularor( $atts ) {
 function clru_shortcode_register( $atts ) {
 	global $us_stylesheet_directory;
 
-	$public_key = us_get_option( 'google_recaptcha_public_key', $default_value = NULL );
+	if ( ! is_user_logged_in() ) {
 
-	ob_start();
-	require $us_stylesheet_directory . '/templates/elements/clru-register-form.php';
+		$public_key = us_get_option( 'google_recaptcha_public_key' );
 
-	return ob_get_clean();
+		ob_start();
+		require $us_stylesheet_directory . '/templates/elements/clru-register-form.php';
+
+		return ob_get_clean();
+	} else {
+		return '<meta id="redirect" http-equiv="refresh" content="0; url=' . esc_url( home_url( '/' ) ) . '">';
+	}
 }
 
 /**
@@ -69,11 +74,15 @@ function clru_shortcode_register( $atts ) {
  */
 function clru_shortcode_request_password_reset( $atts ) {
 	global $us_stylesheet_directory;
+	if ( ! is_user_logged_in() ) {
 
-	ob_start();
-	require $us_stylesheet_directory . '/templates/elements/clru-password-reset-form.php';
+		ob_start();
+		require $us_stylesheet_directory . '/templates/elements/clru-password-reset-form.php';
 
-	return ob_get_clean();
+		return ob_get_clean();
+	} else {
+		return '<meta id="redirect" http-equiv="refresh" content="0; url=' . esc_url( home_url( '/' ) ) . '">';
+	}
 }
 
 /**
@@ -85,22 +94,24 @@ function clru_shortcode_request_password_reset( $atts ) {
  */
 function clru_shortcode_reset_password( $atts ) {
 	global $us_stylesheet_directory;
+	if ( ! is_user_logged_in() ) {
+		if ( $_GET['login'] ) {
+			$user_login = $_GET['login'];
+		} else if ( $_POST['user_login'] ) {
+			$user_login = $_POST['user_login'];
+		}
 
-	if ( $_GET['login'] ) {
-		$user_login = $_GET['login'];
-	} else if ( $_POST['user_login'] ) {
-		$user_login = $_POST['user_login'];
+		if ( $_GET['key'] ) {
+			$activation_key = $_GET['key'];
+		} else if ( $_POST['user_activation_key'] ) {
+			$activation_key = $_POST['user_activation_key'];
+		}
+
+		ob_start();
+		require $us_stylesheet_directory . '/templates/elements/clru-new-password-form.php';
+
+		return ob_get_clean();
+	} else {
+		return '<meta id="redirect" http-equiv="refresh" content="0; url=' . esc_url( home_url( '/' ) ) . '">';
 	}
-
-	if ( $_GET['key'] ) {
-		$activation_key = $_GET['key'];
-	} else if ( $_POST['user_activation_key'] ) {
-		$activation_key = $_POST['user_activation_key'];
-	}
-
-	ob_start();
-	require $us_stylesheet_directory . '/templates/elements/clru-new-password-form.php';
-
-	return ob_get_clean();
 }
-
