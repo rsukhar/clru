@@ -53,7 +53,7 @@ function clru_do_register() {
 		$url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $secret_key . '&response=' . $_POST['g-recaptcha-response'] . '&remoteip=' . $_SERVER['REMOTE_ADDR'];
 		$response = wp_remote_get( $url );
 
-		$body = json_decode( $response['body'], TRUE );
+		$body = wp_remote_retrieve_body( $response );
 
 		if ( $body['success'] === FALSE ) {
 			wp_send_json_error( array(

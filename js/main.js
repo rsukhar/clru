@@ -29,7 +29,6 @@
 		$formNewPassword = $('.g-form.for_newpass'),
 		$overlay = $('<div class="g-overlay">&nbsp;</div>'),
 		$user = $('#user-block'),
-		$userNav = $('#user-nav'),
 	// Show login form
 		showForm = function(){
 			$overlay.appendTo($body);
@@ -87,18 +86,18 @@
 			}, 'json');
 		},
 	// Attempt to register user using the provided data
-	newPassword = function(data){
-		$.post(clruAjax.ajaxurl, data, function(response){
-			// Clearing error messages
-			$formNewPassword.find('.g-form-row.check_wrong').removeClass('check_wrong');
-			$formNewPassword.find('.g-form-row-state').html('');
-			// Login failed
-			if (!response.success) {
-				$formNewPassword.showErrors(response.data);
-				return;
-			}
-		}, 'json');
-	};
+		newPassword = function(data){
+			$.post(clruAjax.ajaxurl, data, function(response){
+				// Clearing error messages
+				$formNewPassword.find('.g-form-row.check_wrong').removeClass('check_wrong');
+				$formNewPassword.find('.g-form-row-state').html('');
+				// Login failed
+				if (!response.success) {
+					$formNewPassword.showErrors(response.data);
+					return;
+				}
+			}, 'json');
+		};
 
 	$overlay.on('click', hideForm);
 	$formCloser.on('click', hideForm);
@@ -122,6 +121,27 @@
 		event.preventDefault();
 		var data = $formNewPassword.serialize();
 		newPassword(data);
+	});
+	$('.clru-progress-marker').on('change', function(event){
+		var $marker = $(this),
+			data = {
+				_ajax_nonce: $marker.data('nonce'),
+				action: 'do_progress',
+				pageID: $marker.data('page'),
+				userID: $marker.data('user'),
+				markerID: $marker.attr('id'),
+				value: $marker.val(),
+				checked: $marker.is(":checked")
+			};
+		$.post(clruAjax.ajaxurl, data, function(response){
+			// marker state write failed
+			console.log(response.data);
+			if (!response.success) {
+				$formNewPassword.showErrors(response.data);
+				return;
+			}
+		}, 'json');
+
 	});
 })(jQuery);
 

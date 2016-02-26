@@ -16,6 +16,9 @@ function clru_register_shortcodes() {
 
 	// password reset form
 	add_shortcode( 'cl-reset-password', 'clru_shortcode_reset_password' );
+
+	// progress marker
+	add_shortcode( 'cl-learnmarker', 'clru_shortcode_progress_marker' );
 }
 
 /**
@@ -113,5 +116,32 @@ function clru_shortcode_reset_password( $atts ) {
 		return ob_get_clean();
 	} else {
 		return '<meta id="redirect" http-equiv="refresh" content="0; url=' . esc_url( home_url( '/' ) ) . '">';
+	}
+}
+
+/**
+ * Shortcode for progress marker
+ *
+ * @param atts
+ *
+ * @return string
+ */
+function clru_shortcode_progress_marker( $atts ) {
+	global $us_stylesheet_directory;
+
+	$defaults = array(
+		'id' => 0,
+		'title' => '',
+	);
+	$atts = array_intersect_key( $atts, $defaults );
+	extract( $atts );
+
+	if ( is_user_logged_in() ) {
+		ob_start();
+		require $us_stylesheet_directory . '/templates/elements/clru-progress-marker.php';
+
+		return ob_get_clean();
+	} else {
+		return;
 	}
 }

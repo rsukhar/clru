@@ -22,10 +22,14 @@ function clru_disable_admin_bar() {
 }
 
 /**
+ * Include helpers functions
+ */
+require $us_stylesheet_directory . '/functions/helpers.php';
+
+/**
  * Include activation functions
  */
 require $us_stylesheet_directory . '/functions/activation.php';
-
 
 /**
  * Include Visual Composer map
@@ -42,3 +46,7 @@ require $us_stylesheet_directory . '/functions/shortcodes.php';
  */
 require $us_stylesheet_directory . '/functions/auth.php';
 
+/**
+ * Include learning functions
+ */
+require $us_stylesheet_directory . '/functions/learn.php';
