@@ -81,14 +81,16 @@ function clru_do_progress() {
 		}
 	}
 
-	wp_send_json_success( );
+	wp_send_json_success();
 }
 
 /**
  * Count progress from checked markers and total markers
  *
- * @var $total_markers int
- * @var $markers array
+ * @param $total_markers int
+ * @param $markers array
+ *
+ * @return float
  */
 function clru_count_progress( $total_markers, $markers ) {
 	return floor( ( count( $markers ) / $total_markers ) * 10000 ) / 100;
@@ -125,3 +127,5 @@ function clru_progress_markers_to_post_meta( $post_id ) {
 		}
 	}
 }
+
+
