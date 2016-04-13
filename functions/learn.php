@@ -8,7 +8,7 @@ function clru_do_progress() {
 
 	check_ajax_referer( 'clru_do_progress_nonce', '_ajax_nonce' );
 
-	$data = [ ];
+	$data = array();
 
 	if ( ! $_POST['pageID'] ) {
 		wp_send_json_error( array(
@@ -102,11 +102,11 @@ function clru_count_progress( $total_markers, $markers ) {
 add_action( 'save_post', 'clru_progress_markers_to_post_meta' );
 function clru_progress_markers_to_post_meta( $post_id ) {
 
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+	if ( defined( 'DOING_AUTOSAVE' ) AND DOING_AUTOSAVE ) {
 		return;
 	}
 
-	if ( $_POST && $_POST['post_type'] == 'page' ) {
+	if ( $_POST AND $_POST['post_type'] == 'page' ) {
 		if ( ! current_user_can( 'edit_page', $post_id ) ) {
 			return;
 		}
@@ -115,7 +115,7 @@ function clru_progress_markers_to_post_meta( $post_id ) {
 
 		if ( has_shortcode( $content, 'cl-learnmarker' ) ) {
 			$shortcodes = clru_get_all_shortcode_attributes( 'cl-learnmarker', $content );
-			$page_shortcodes = [ ];
+			$page_shortcodes = array();
 			foreach ( $shortcodes as $shortcode ) {
 				$page_shortcodes[] = $shortcode['id'];
 			}

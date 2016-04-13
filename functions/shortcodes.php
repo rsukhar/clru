@@ -170,33 +170,21 @@ function clru_shortcode_progress_marker( $atts ) {
 function clru_shortcode_learn_navigation( $atts ) {
 	global $us_stylesheet_directory, $wpdb;
 
-	$defaults = array(
-		'id' => 0,
-	);
-	$atts = array_intersect_key( $atts, $defaults );
-	extract( $atts );
-
-	if ( $atts['id'] ) {
-		$parent_id = $atts['id'];
-	} else {
-		$parent_id = get_the_ID();
-	}
-
+	$parent_id = isset( $atts['id'] ) ? intval( $atts['id'] ) : get_the_ID();
 	$user_logged = FALSE;
 	$user = wp_get_current_user();
 	if ( $user->exists() ) {
 		$user_logged = TRUE;
 		$user_id = $user->ID;
-
 		$user_progress = get_user_meta( $user_id, 'clru_progress', TRUE );
 	}
 
 	$user_progress_pages = $user_progress['pages'];
 
-	$result = $wpdb->get_results( 'SELECT `ID`, `post_title`, `post_parent` FROM `wp_posts` WHERE `post_type` = "page" AND `post_parent` != 0 ORDER BY `menu_order` ASC' );
+	$result = $wpdb->get_results( 'SELECT `ID`, `post_title`, `post_parent` FROM ' . $wpdb->postmeta . ' WHERE `post_type` = "page" AND `post_parent` != 0 ORDER BY `menu_order` ASC' );
 
-	$learn_pages = [ ];
-	$pages_markers = [ ];
+	$learn_pages = array();
+	$pages_markers = array();
 	foreach ( $result as $page ) {
 		$learn_pages[ $page->post_parent ][ $page->ID ] = $page->post_title;
 
@@ -234,7 +222,6 @@ function clru_shortcode_learn_navigation( $atts ) {
 			'completed_markers' => $completed_markers,
 		);
 	}
-
 
 	ob_start();
 	require $us_stylesheet_directory . '/templates/elements/clru-learn-navigation.php';

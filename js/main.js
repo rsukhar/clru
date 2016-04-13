@@ -135,7 +135,6 @@
 			};
 		$.post(clruAjax.ajaxurl, data, function(response){
 			// marker state write failed
-			console.log(response.data);
 			if (!response.success) {
 				$formNewPassword.showErrors(response.data);
 				return;
